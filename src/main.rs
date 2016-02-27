@@ -26,41 +26,45 @@ fn main() {
     let document = kuchiki::parse_html().from_http(res).unwrap();
 
     let address_re = Regex::new(r"(?i)gainesville, fl").unwrap();
+    let mut threads = vec![];
     for listings in document.select("table.listings").unwrap() {
         let elem = listings.as_node();
         let text = elem.select("tr:nth-of-type(3)").unwrap().next().unwrap().text_contents();
 
         if address_re.is_match(&text) {
             let mls = elem.select("span.mls").unwrap().next().unwrap().text_contents();
-            check_block_and_parking(mls, client.clone());
+            let mls_client = client.clone();
+            threads.push(thread::spawn(move || {
+                check_block_and_parking(mls, mls_client);
+            }));
         }
+    }
+    for thread in threads {
+        let _ = thread.join();
     }
 }
 
 fn check_block_and_parking(mls: String, client: Arc<Client>) {
-    thread::spawn(move || {
-        let res = client.post(&format!("{}/gan/idx/detail.php", SEARCH_HOST))
-            .header(ContentType::form_url_encoded())
-            .body(&format!("key={}&mls={}&gallery=false&custom=", KEY, mls))
-            .send()
-            .unwrap();
+    let res = client.post(&format!("{}/gan/idx/detail.php", SEARCH_HOST))
+        .header(ContentType::form_url_encoded())
+        .body(&format!("key={}&mls={}&gallery=false&custom=", KEY, mls))
+        .send()
+        .unwrap();
 
-        let document = kuchiki::parse_html().from_http(res).unwrap();
-        let mut has_parking = true;
-        let mut has_block = false;
+    let document = kuchiki::parse_html().from_http(res).unwrap();
+    let mut has_parking = true;
+    let mut has_block = false;
 
-        for details in document.select("table.wide label.bold").unwrap() {
-            if "Parking:" == details.text_contents() && details.as_node().parent().unwrap().select("span").unwrap().next().unwrap().text_contents().to_lowercase().find("no garage") != None {
-                has_parking = false;
-            }
-            if "Construction-exterior:" == details.text_contents() && details.as_node().parent().unwrap().select("span").unwrap().next().unwrap().text_contents().to_lowercase().find("block") != None {
-                has_block = true;
-            }
+    for details in document.select("table.wide label.bold").unwrap() {
+        if "Parking:" == details.text_contents() && details.as_node().parent().unwrap().select("span").unwrap().next().unwrap().text_contents().to_lowercase().find("no garage") != None {
+            has_parking = false;
         }
-
-        if has_parking && has_block {
-            println!("{}/gan/idx/index.php?key={}&mls={}", SEARCH_HOST, KEY, mls);
+        if "Construction-exterior:" == details.text_contents() && details.as_node().parent().unwrap().select("span").unwrap().next().unwrap().text_contents().to_lowercase().find("block") != None {
+            has_block = true;
         }
-    });
-    return;
+    }
+
+    if has_parking && has_block {
+        println!("{}/gan/idx/index.php?key={}&mls={}", SEARCH_HOST, KEY, mls);
+    }
 }
