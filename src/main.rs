@@ -1,13 +1,11 @@
 extern crate hyper;
 extern crate kuchiki;
-extern crate regex;
 
 use std::sync::Arc;
 use std::thread;
 use hyper::Client;
 use hyper::header::ContentType;
 use kuchiki::traits::ParserExt;
-use regex::Regex;
 
 const KEY: &'static str = "52633f4973cf845e55b18c8e22ab08d5";
 const SEARCH_HOST: &'static str = "http://www.gainesvillemls.com";
@@ -25,13 +23,12 @@ fn main() {
 
     let document = kuchiki::parse_html().from_http(res).unwrap();
 
-    let address_re = Regex::new(r"(?i)gainesville, fl").unwrap();
     let mut threads = vec![];
     for listings in document.select("table.listings").unwrap() {
         let elem = listings.as_node();
         let text = elem.select("tr:nth-of-type(3)").unwrap().next().unwrap().text_contents();
 
-        if address_re.is_match(&text) {
+        if text.to_lowercase().find("gainesville, fl") != None {
             let mls = elem.select("span.mls").unwrap().next().unwrap().text_contents();
             let mls_client = client.clone();
             threads.push(thread::spawn(move || {
