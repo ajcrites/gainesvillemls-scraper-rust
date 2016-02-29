@@ -4,11 +4,19 @@ version = "0.1.0"
 dependencies = [
  "hyper 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "kuchiki 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num_cpus 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
+ "redis 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "scoped_threadpool 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "bitflags"
 version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "byteorder"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -363,6 +371,16 @@ version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "redis"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "rustc-serialize 0.3.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sha1 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "url 0.5.5 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "rustc-serialize"
 version = "0.3.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -374,6 +392,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "semver 0.1.20 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "scoped_threadpool"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "selectors"
@@ -400,6 +423,14 @@ version = "0.6.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "num 0.1.31 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "sha1"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "byteorder 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
